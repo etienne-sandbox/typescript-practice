@@ -35,24 +35,27 @@ fetch("http://localhost:3001/workouts")
     );
   });
 
-type Place = {
-  image: string;
-  name: string;
-  slug: string;
-  workoutCount: number;
-};
+const PlaceSchema = zod.object({
+  image: zod.string(),
+  name: zod.string(),
+  slug: zod.string(),
+  workoutCount: zod.number(),
+});
 
-type PlaceResponse = {
-  results: Array<Place>;
-  total: number;
-};
+const PlaceResponseSchema = zod.object({
+  results: zod.array(PlaceSchema),
+  total: zod.number(),
+});
 
 const placesDisplay = createDisplay("Places");
 
 fetch("http://localhost:3001/places")
   .then((res) => res.json())
-  .then((data: PlaceResponse) => {
+  .then((data) => {
+    const placesResult = PlaceResponseSchema.parse(data);
     placesDisplay.updateContent(
-      data.results.map((place) => `${place.name} (${place.slug})`).join("\n")
+      placesResult.results
+        .map((place) => `${place.name} (${place.slug})`)
+        .join("\n")
     );
   });
