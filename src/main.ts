@@ -21,10 +21,8 @@ const WorkoutResponseSchema = zod.object({
 
 const workoutsDisplay = createDisplay("Workouts");
 
-fetch("http://localhost:3001/workouts")
-  .then((res) => res.json())
-  .then((data) => {
-    const workoutsResult = WorkoutResponseSchema.parse(data);
+fetchAndParse("http://localhost:3001/workouts", WorkoutResponseSchema).then(
+  (workoutsResult) => {
     workoutsDisplay.updateContent(
       workoutsResult.results
         .map(
@@ -33,7 +31,8 @@ fetch("http://localhost:3001/workouts")
         )
         .join("\n")
     );
-  });
+  }
+);
 
 const PlaceSchema = zod.object({
   image: zod.string(),
@@ -49,13 +48,21 @@ const PlaceResponseSchema = zod.object({
 
 const placesDisplay = createDisplay("Places");
 
-fetch("http://localhost:3001/places")
-  .then((res) => res.json())
-  .then((data) => {
-    const placesResult = PlaceResponseSchema.parse(data);
+fetchAndParse("http://localhost:3001/places", PlaceResponseSchema).then(
+  (placesResult) => {
     placesDisplay.updateContent(
       placesResult.results
         .map((place) => `${place.name} (${place.slug})`)
         .join("\n")
     );
-  });
+  }
+);
+
+async function fetchAndParse<Data>(
+  url: string,
+  schema: zod.Schema<Data>
+): Promise<Data> {
+  const res = await fetch(url);
+  const data = await res.json();
+  return schema.parse(data);
+}
