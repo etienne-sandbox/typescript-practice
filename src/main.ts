@@ -1,6 +1,5 @@
 import "./style.css";
-
-const root = notNil(document.getElementById("app"));
+import { createDisplay } from "./utils";
 
 type Workout = {
   id: string;
@@ -19,12 +18,12 @@ type WorkoutResponse = {
   count: number;
 };
 
-const workoutsDisplay = createDisplay();
+const workoutsDisplay = createDisplay("Workouts");
 
 fetch("http://localhost:3001/workouts")
   .then((res) => res.json())
   .then((data: WorkoutResponse) => {
-    workoutsDisplay(
+    workoutsDisplay.updateContent(
       data.results
         .map(
           (workout) =>
@@ -34,17 +33,24 @@ fetch("http://localhost:3001/workouts")
     );
   });
 
-function createDisplay() {
-  const elem = document.createElement("pre");
-  root.appendChild(elem);
-  return (content: string) => {
-    elem.innerHTML = content;
-  };
-}
+type Place = {
+  image: string;
+  name: string;
+  slug: string;
+  workoutCount: number;
+};
 
-function notNil<T>(val: T | null | undefined): T {
-  if (val === null || val === undefined) {
-    throw new Error("Unexpected null or undefined");
-  }
-  return val;
-}
+type PlaceResponse = {
+  results: Array<Place>;
+  count: number;
+};
+
+const placesDisplay = createDisplay("Places");
+
+fetch("http://localhost:3001/places")
+  .then((res) => res.json())
+  .then((data: PlaceResponse) => {
+    placesDisplay.updateContent(
+      data.results.map((place) => `${place.name} (${place.slug})`).join("\n")
+    );
+  });
