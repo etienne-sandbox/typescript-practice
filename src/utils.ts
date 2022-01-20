@@ -1,6 +1,6 @@
 const root = notNil(document.getElementById("app"));
 
-type Display = {
+export type Display = {
   updateContent: (content: string) => void;
   updateTitle: (title: string) => void;
 };

@@ -1,6 +1,7 @@
 import "./style.css";
-import { createDisplay } from "./utils";
+import { createDisplay, Display } from "./utils";
 import * as zod from "zod";
+import { createResource, Resource } from "./resource";
 
 const WorkoutSchema = zod.object({
   id: zod.string(),
@@ -19,21 +20,6 @@ const WorkoutResponseSchema = zod.object({
   total: zod.number(),
 });
 
-const workoutsDisplay = createDisplay("Workouts");
-
-fetchAndParse("http://localhost:3001/workouts", WorkoutResponseSchema).then(
-  (workoutsResult) => {
-    workoutsDisplay.updateContent(
-      workoutsResult.results
-        .map(
-          (workout) =>
-            `${workout.date} - ${workout.distance}m ${workout.duration}mn`
-        )
-        .join("\n")
-    );
-  }
-);
-
 const PlaceSchema = zod.object({
   image: zod.string(),
   name: zod.string(),
@@ -46,23 +32,60 @@ const PlaceResponseSchema = zod.object({
   total: zod.number(),
 });
 
+const workoutsDisplay = createDisplay("Workouts");
 const placesDisplay = createDisplay("Places");
 
-fetchAndParse("http://localhost:3001/places", PlaceResponseSchema).then(
-  (placesResult) => {
-    placesDisplay.updateContent(
-      placesResult.results
-        .map((place) => `${place.name} (${place.slug})`)
-        .join("\n")
+createResource(
+  {
+    url: "http://localhost:3001/workouts",
+    schema: WorkoutResponseSchema,
+  },
+  (workoutsRes) => {
+    updateDisplayFromResource(
+      workoutsDisplay,
+      workoutsRes,
+      (workoutsResult) => {
+        workoutsDisplay.updateContent(
+          workoutsResult.results
+            .map(
+              (workout) =>
+                `${workout.date} - ${workout.distance}m ${workout.duration}mn`
+            )
+            .join("\n")
+        );
+      }
     );
   }
 );
 
-async function fetchAndParse<Data>(
-  url: string,
-  schema: zod.Schema<Data>
-): Promise<Data> {
-  const res = await fetch(url);
-  const data = await res.json();
-  return schema.parse(data);
+function updateDisplayFromResource<Data>(
+  display: Display,
+  resource: Resource<Data>,
+  onSuccess: (data: Data) => void
+) {
+  if (resource.status === "pending") {
+    display.updateContent("Loading...");
+    return;
+  }
+  if (resource.status === "rejected") {
+    display.updateContent("Error: " + String(resource.error));
+    return;
+  }
+  onSuccess(resource.data);
 }
+
+createResource(
+  {
+    url: "http://localhost:3001/places",
+    schema: PlaceResponseSchema,
+  },
+  (placesRes) => {
+    updateDisplayFromResource(placesDisplay, placesRes, (placesResult) => {
+      placesDisplay.updateContent(
+        placesResult.results
+          .map((place) => `${place.name} (${place.slug})`)
+          .join("\n")
+      );
+    });
+  }
+);
