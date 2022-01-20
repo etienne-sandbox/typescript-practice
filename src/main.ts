@@ -16,7 +16,7 @@ const WorkoutSchema = zod.object({
 
 const WorkoutResponseSchema = zod.object({
   results: zod.array(WorkoutSchema),
-  count: zod.number(),
+  total: zod.number(),
 });
 
 const workoutsDisplay = createDisplay("Workouts");
@@ -44,7 +44,7 @@ type Place = {
 
 type PlaceResponse = {
   results: Array<Place>;
-  count: number;
+  total: number;
 };
 
 const placesDisplay = createDisplay("Places");
