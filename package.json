@@ -4,10 +4,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "api": "sport-session-tracker",
+    "api:slow": "sport-session-tracker --slow"
   },
   "devDependencies": {
     "typescript": "^4.4.4",
     "vite": "^2.7.2"
+  },
+  "dependencies": {
+    "@instant-api/sport-session-tracker": "^1.0.1"
   }
 }
