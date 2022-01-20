@@ -13,6 +13,7 @@
     "vite": "^2.7.2"
   },
   "dependencies": {
-    "@instant-api/sport-session-tracker": "^1.0.1"
+    "@instant-api/sport-session-tracker": "^1.0.1",
+    "zod": "^3.11.6"
   }
 }

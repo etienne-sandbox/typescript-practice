@@ -1,30 +1,32 @@
 import "./style.css";
 import { createDisplay } from "./utils";
+import * as zod from "zod";
 
-type Workout = {
-  id: string;
-  date: string;
-  place: string;
-  distance: number;
-  duration: number;
-  user: string;
-  placeName: string;
-  speed: number;
-  userName: string;
-};
+const WorkoutSchema = zod.object({
+  id: zod.string(),
+  date: zod.string(),
+  place: zod.string(),
+  distance: zod.number(),
+  duration: zod.number(),
+  user: zod.string(),
+  placeName: zod.string(),
+  speed: zod.number(),
+  userName: zod.string(),
+});
 
-type WorkoutResponse = {
-  results: Array<Workout>;
-  count: number;
-};
+const WorkoutResponseSchema = zod.object({
+  results: zod.array(WorkoutSchema),
+  count: zod.number(),
+});
 
 const workoutsDisplay = createDisplay("Workouts");
 
 fetch("http://localhost:3001/workouts")
   .then((res) => res.json())
-  .then((data: WorkoutResponse) => {
+  .then((data) => {
+    const workoutsResult = WorkoutResponseSchema.parse(data);
     workoutsDisplay.updateContent(
-      data.results
+      workoutsResult.results
         .map(
           (workout) =>
             `${workout.date} - ${workout.distance}m ${workout.duration}mn`
