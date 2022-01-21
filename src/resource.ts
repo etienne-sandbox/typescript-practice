@@ -14,6 +14,9 @@ export function createResource<Data>(
   options: ResourceOptions<Data>,
   onChange: (resource: Resource<Data>) => void
 ): void {
+  if (!options) {
+    throw new Error('Missing required parameter "options"');
+  }
   let state: Resource<Data> = { status: "pending" };
   onChange(state);
   fetch(options.url)
