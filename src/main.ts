@@ -22,6 +22,7 @@ type Article = {
 
 type Reader = {
   role: "Reader";
+  id: string;
   name: string;
   age: number;
   permissions: Permissions;
@@ -30,6 +31,7 @@ type Reader = {
 
 type Author = {
   role: "Author";
+  id: string;
   name: string;
   age: number;
   permissions: Permissions;
@@ -37,3 +39,5 @@ type Author = {
 };
 
 type User = Author | Reader;
+
+const data: Array<User> = [];
