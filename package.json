@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "react-query": "^3.38.1"
   },
   "devDependencies": {
     "@instant-api/sport-session-tracker": "^1.1.0",

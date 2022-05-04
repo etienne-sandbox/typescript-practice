@@ -1,85 +1,71 @@
-import { useFetch } from "../hooks/useFetch";
-
-type Place = {
-  image: string;
-  name: string;
-  slug: string;
-  workoutCount: number;
-};
-
-type PlacesResponse = {
-  results: Place[];
-  total: number;
-};
-
-type Workout = {
-  id: string;
-  date: string;
-  place: string;
-  distance: number;
-  duration: number;
-  user: string;
-  placeName: string;
-  speed: number;
-  userName: string;
-};
-
-type WorkoutsResponse = {
-  results: Workout[];
-  total: number;
-};
+import { useQuery } from "react-query";
+import { fetchPlaces, fetchWorkouts } from "../api";
+import { useState } from "react";
 
 export function App() {
-  const [places, refreshPlaces] = useFetch<PlacesResponse>(
-    "http://localhost:3001/place"
-  );
-  const [workouts, refreshWorkouts] = useFetch<WorkoutsResponse>(
-    "http://localhost:3001/workouts"
-  );
+  const [page, setPage] = useState(0);
+
+  const placesRes = useQuery(["places"], fetchPlaces, {
+    retry: 1,
+  });
+
+  const workoutsRes = useQuery(["workouts", page], () => fetchWorkouts(page), {
+    cacheTime: 10000,
+    keepPreviousData: true,
+  });
 
   return (
     <div className="App">
       <div>
         <h2>
-          Places <button onClick={refreshPlaces}>Refresh</button>
+          Workouts {workoutsRes.isFetching && <span>...</span>}
+          <button onClick={() => workoutsRes.refetch()}>Refresh</button>
         </h2>
         {(() => {
-          if (places.status === "error") {
+          if (workoutsRes.isError) {
             return <div>Error</div>;
           }
-          if (places.status === "loading") {
+          if (workoutsRes.isLoading) {
             return <div>Loading...</div>;
           }
-          return (
-            <div>
-              {places.data.results.map((place) => (
-                <div key={place.slug}>{place.name}</div>
-              ))}
-            </div>
-          );
+          if (workoutsRes.data) {
+            return (
+              <div>
+                {workoutsRes.data.results.map((workout) => (
+                  <div key={workout.id}>
+                    {workout.distance}m - {workout.duration}min
+                  </div>
+                ))}
+              </div>
+            );
+          }
+          return null;
         })()}
+        <button onClick={() => setPage((p) => p - 1)}>Prev Page</button>
+        <button onClick={() => setPage((p) => p + 1)}>Next Page</button>
       </div>
+
       <div>
         <h2>
-          Workouts <button onClick={refreshWorkouts}>Refresh</button>
+          Places <button onClick={() => placesRes.refetch()}>Refresh</button>
         </h2>
         {(() => {
-          if (workouts.status === "error") {
+          if (placesRes.isError) {
             return <div>Error</div>;
           }
-          if (workouts.status === "loading") {
+          if (placesRes.isLoading) {
             return <div>Loading...</div>;
           }
-          return (
-            <div>
-              {workouts.refreshing && <p>Updating...</p>}
-              {workouts.data.results.map((workout) => (
-                <div key={workout.id}>
-                  {workout.distance}m - {workout.duration}min
-                </div>
-              ))}
-            </div>
-          );
+          if (placesRes.data) {
+            return (
+              <div>
+                {placesRes.data.results.map((place) => (
+                  <div key={place.slug}>{place.name}</div>
+                ))}
+              </div>
+            );
+          }
+          return null;
         })()}
       </div>
     </div>
