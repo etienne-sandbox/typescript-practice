@@ -30,32 +30,57 @@ type WorkoutsResponse = {
 };
 
 export function App() {
-  const places = useFetch<PlacesResponse>("http://localhost:3001/place");
-  const workouts = useFetch<WorkoutsResponse>("http://localhost:3001/workouts");
+  const [places, refreshPlaces] = useFetch<PlacesResponse>(
+    "http://localhost:3001/place"
+  );
+  const [workouts, refreshWorkouts] = useFetch<WorkoutsResponse>(
+    "http://localhost:3001/workouts"
+  );
 
   return (
     <div className="App">
       <div>
-        <h2>Places</h2>
-        {places === null ? (
-          <p>Loading...</p>
-        ) : (
-          places.results.map((place) => (
-            <div key={place.slug}>{place.name}</div>
-          ))
-        )}
+        <h2>
+          Places <button onClick={refreshPlaces}>Refresh</button>
+        </h2>
+        {(() => {
+          if (places.status === "error") {
+            return <div>Error</div>;
+          }
+          if (places.status === "loading") {
+            return <div>Loading...</div>;
+          }
+          return (
+            <div>
+              {places.data.results.map((place) => (
+                <div key={place.slug}>{place.name}</div>
+              ))}
+            </div>
+          );
+        })()}
       </div>
       <div>
-        <h2>Workouts</h2>
-        {workouts === null ? (
-          <p>Loading...</p>
-        ) : (
-          workouts.results.map((workout) => (
-            <div key={workout.id}>
-              {workout.distance}m - {workout.duration}min
+        <h2>
+          Workouts <button onClick={refreshWorkouts}>Refresh</button>
+        </h2>
+        {(() => {
+          if (workouts.status === "error") {
+            return <div>Error</div>;
+          }
+          if (workouts.status === "loading") {
+            return <div>Loading...</div>;
+          }
+          return (
+            <div>
+              {workouts.refreshing && <p>Updating...</p>}
+              {workouts.data.results.map((workout) => (
+                <div key={workout.id}>
+                  {workout.distance}m - {workout.duration}min
+                </div>
+              ))}
             </div>
-          ))
-        )}
+          );
+        })()}
       </div>
     </div>
   );
