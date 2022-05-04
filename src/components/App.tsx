@@ -30,7 +30,7 @@ type WorkoutsResponse = {
 };
 
 export function App() {
-  const places = useFetch<PlacesResponse>("http://localhost:3001/places");
+  const places = useFetch<PlacesResponse>("http://localhost:3001/place");
   const workouts = useFetch<WorkoutsResponse>("http://localhost:3001/workouts");
 
   return (

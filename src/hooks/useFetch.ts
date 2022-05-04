@@ -9,6 +9,9 @@ export function useFetch<Data>(url: string): Data | null {
     (async () => {
       try {
         const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) {
+          throw res;
+        }
         const data = await res.json();
         setData(data);
       } catch (error) {
