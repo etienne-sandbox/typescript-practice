@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 
-export function useFetch<Data>(url: string): Data | null {
+export type Resource<Data> =
+  | { status: "loading" }
+  | { status: "success"; data: Data }
+  | { status: "error"; error: any };
+
+export function useFetch<Data>(url: string): Resource<Data> {
   const [data, setData] = useState<Data | null>(null);
 
   useEffect(() => {
